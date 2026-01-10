@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Send, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { motion } from "framer-motion";
-import { Lead } from "@/entities/Lead";
+import { base44 } from "@/api/base44Client";
 
 export default function ContactForm() {
   const [contactForm, setContactForm] = useState({
@@ -14,6 +14,8 @@ export default function ContactForm() {
     email: "",
     phone: "",
     company_name: "",
+    website_url: "",
+    social_media_links: "",
     industry: "",
     project_type: "",
     budget_range: "",
@@ -29,13 +31,26 @@ export default function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      await Lead.create(contactForm);
+      const newLead = await base44.entities.Lead.create(contactForm);
+      
+      // Trigger automated follow-up email
+      if (newLead && newLead.id) {
+        try {
+          await base44.functions.invoke('sendLeadFollowUp', { leadId: newLead.id });
+        } catch (emailError) {
+          console.error("Error sending follow-up email:", emailError);
+          // Don't block the form submission if email fails
+        }
+      }
+      
       setIsSubmitted(true);
       setContactForm({
         contact_name: "",
         email: "",
         phone: "",
         company_name: "",
+        website_url: "",
+        social_media_links: "",
         industry: "",
         project_type: "",
         budget_range: "",
@@ -148,6 +163,30 @@ export default function ContactForm() {
                         value={contactForm.company_name}
                         onChange={(e) => setContactForm({...contactForm, company_name: e.target.value})}
                         placeholder="Your Company"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Website URL
+                      </label>
+                      <Input
+                        type="url"
+                        value={contactForm.website_url}
+                        onChange={(e) => setContactForm({...contactForm, website_url: e.target.value})}
+                        placeholder="https://yourcompany.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Social Media Links
+                      </label>
+                      <Input
+                        value={contactForm.social_media_links}
+                        onChange={(e) => setContactForm({...contactForm, social_media_links: e.target.value})}
+                        placeholder="LinkedIn, Instagram, Twitter"
                       />
                     </div>
                   </div>

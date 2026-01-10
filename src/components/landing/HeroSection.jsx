@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { Lead } from "@/entities/Lead";
+import { base44 } from "@/api/base44Client";
 
 export default function HeroSection() {
   const [leadForm, setLeadForm] = useState({
@@ -12,6 +12,8 @@ export default function HeroSection() {
     email: "",
     company_name: "",
     industry: "",
+    website_url: "",
+    social_media_links: "",
     lead_source: "website_hero"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,13 +24,26 @@ export default function HeroSection() {
     setIsSubmitting(true);
 
     try {
-      await Lead.create(leadForm);
+      const newLead = await base44.entities.Lead.create(leadForm);
+      
+      // Trigger automated follow-up email
+      if (newLead && newLead.id) {
+        try {
+          await base44.functions.invoke('sendLeadFollowUp', { leadId: newLead.id });
+        } catch (emailError) {
+          console.error("Error sending follow-up email:", emailError);
+          // Don't block the form submission if email fails
+        }
+      }
+      
       setIsSubmitted(true);
       setLeadForm({
         contact_name: "",
         email: "",
         company_name: "",
         industry: "",
+        website_url: "",
+        social_media_links: "",
         lead_source: "website_hero"
       });
     } catch (error) {
@@ -180,6 +195,31 @@ export default function HeroSection() {
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Website URL
+                  </label>
+                  <Input
+                    type="url"
+                    value={leadForm.website_url}
+                    onChange={(e) => setLeadForm({...leadForm, website_url: e.target.value})}
+                    placeholder="https://yourcompany.com"
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Social Media Links <span className="text-gray-500 font-normal">(Optional)</span>
+                  </label>
+                  <Input
+                    value={leadForm.social_media_links}
+                    onChange={(e) => setLeadForm({...leadForm, social_media_links: e.target.value})}
+                    placeholder="LinkedIn, Instagram, Twitter URLs (comma-separated)"
+                    className="w-full"
+                  />
                 </div>
 
                 <Button
