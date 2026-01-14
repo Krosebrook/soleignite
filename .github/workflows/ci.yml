@@ -13,6 +13,10 @@ jobs:
     name: Code Quality & Tests
     runs-on: ubuntu-latest
     
+    # Security: Explicitly limit GITHUB_TOKEN permissions to minimum required
+    permissions:
+      contents: read
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
