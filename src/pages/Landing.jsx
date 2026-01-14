@@ -14,7 +14,7 @@ const TestimonialsSection = lazy(() => import("../components/landing/Testimonial
 
 // Minimal loading placeholder that matches page style
 const SectionFallback = () => (
-  <div className="py-20 flex items-center justify-center">
+  <div className="py-20 flex items-center justify-center" role="status" aria-label="Loading" aria-live="polite">
     <div className="w-6 h-6 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
   </div>
 );

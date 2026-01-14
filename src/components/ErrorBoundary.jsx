@@ -30,7 +30,8 @@ class ErrorBoundary extends React.Component {
     // Can be enabled later without breaking changes
     try {
       // Future: Add Sentry.captureException(error) here
-      if (window.Sentry && typeof window.Sentry.captureException === 'function') {
+      // Safe check: Ensure window exists (SSR compatibility) and Sentry is available
+      if (typeof window !== 'undefined' && window.Sentry && typeof window.Sentry.captureException === 'function') {
         window.Sentry.captureException(error);
       }
     } catch (reportingError) {

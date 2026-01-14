@@ -9,7 +9,7 @@ import { MessageSquare } from "lucide-react";
 const ContactForm = lazy(() => import("../components/contact/ContactForm"));
 
 const FormFallback = () => (
-  <div className="py-20 flex items-center justify-center">
+  <div className="py-20 flex items-center justify-center" role="status" aria-label="Loading" aria-live="polite">
     <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
   </div>
 );

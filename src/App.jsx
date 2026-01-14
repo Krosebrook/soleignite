@@ -18,7 +18,7 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 // Loading component for lazy-loaded pages
 // Safe addition: Shows spinner while pages load, consistent with existing loading pattern
 const PageLoadingFallback = () => (
-  <div className="fixed inset-0 flex items-center justify-center">
+  <div className="fixed inset-0 flex items-center justify-center" role="status" aria-label="Loading" aria-live="polite">
     <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
   </div>
 );
