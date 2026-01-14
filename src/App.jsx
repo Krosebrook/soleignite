@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -14,11 +15,29 @@ const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
+// Loading component for lazy-loaded pages
+// Safe addition: Shows spinner while pages load, consistent with existing loading pattern
+const PageLoadingFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+  </div>
+);
+
 // Safe change: Added ErrorBoundary wrapper to each route for production error handling
-// This doesn't change existing behavior, only adds error recovery
+// Added Suspense wrapper for lazy-loaded pages without changing behavior
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <ErrorBoundary><Layout currentPageName={currentPageName}>{children}</Layout></ErrorBoundary>
-  : <ErrorBoundary>{children}</ErrorBoundary>;
+  <ErrorBoundary>
+    <Layout currentPageName={currentPageName}>
+      <Suspense fallback={<PageLoadingFallback />}>
+        {children}
+      </Suspense>
+    </Layout>
+  </ErrorBoundary>
+  : <ErrorBoundary>
+      <Suspense fallback={<PageLoadingFallback />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
