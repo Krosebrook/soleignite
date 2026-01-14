@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Menu, ArrowUpRight } from "lucide-react";
 import {
@@ -18,8 +18,8 @@ const navigationItems = [
   { name: "Contact", href: createPageUrl("Contact") },
 ];
 
-export default function Layout({ children, currentPageName }) {
-  const location = useLocation();
+// Safe fix: Removed unused imports and variables that don't affect functionality
+export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (

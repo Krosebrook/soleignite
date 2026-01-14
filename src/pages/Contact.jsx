@@ -1,7 +1,18 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare } from "lucide-react";
-import ContactForm from "../components/contact/ContactForm";
+
+/**
+ * Safe code splitting: Lazy load ContactForm (365 lines)
+ * Reduces initial bundle for Contact page
+ */
+const ContactForm = lazy(() => import("../components/contact/ContactForm"));
+
+const FormFallback = () => (
+  <div className="py-20 flex items-center justify-center" role="status" aria-label="Loading" aria-live="polite">
+    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+  </div>
+);
 
 export default function Contact() {
   return (
@@ -36,7 +47,9 @@ export default function Contact() {
       {/* Contact Form Section */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ContactForm />
+          <Suspense fallback={<FormFallback />}>
+            <ContactForm />
+          </Suspense>
         </div>
       </section>
     </div>

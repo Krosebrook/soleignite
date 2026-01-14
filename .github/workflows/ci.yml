@@ -1,0 +1,55 @@
+name: CI
+
+# Safe CI workflow: Only runs on pull requests, doesn't disrupt development
+# Performs basic checks: linting, testing, security audit
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  quality-checks:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    
+    # Security: Explicitly limit GITHUB_TOKEN permissions to minimum required
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false
+        
+      - name: Run Tests
+        run: npm run test:run
+        continue-on-error: false
+        
+      - name: Build Project
+        run: npm run build
+        continue-on-error: false
+        
+      - name: Security Audit
+        run: npm audit --audit-level=high
+        # Continue even if vulnerabilities found (will be reported but won't fail the build)
+        # This is safe for now since we're in pre-MVP phase
+        continue-on-error: true
+        
+      - name: Check Bundle Size
+        run: |
+          ls -lh dist/assets/ || echo "No dist/assets directory"
+          du -sh dist/ || echo "No dist directory"
+        continue-on-error: true
